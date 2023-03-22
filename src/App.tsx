@@ -3,12 +3,11 @@ import { InfinitySpin } from "react-loader-spinner";
 
 function App() {
   const [pokemons, setPokemons] = useState<any>([]);
-  const [loader, setLoader] = useState(false);
-  let offset = 0;
+  const [loader, setLoader] = useState<any>(false);
+  const [offset, setOffset] = useState(0);
 
   async function loadPokemon() {
     try {
-      setLoader(true);
       const data = await fetch(
         `https://pokeapi.co/api/v2/pokemon?limit=${10}&&offset=${offset}`
       );
@@ -17,28 +16,24 @@ function App() {
       response.results.forEach((pokemon: any) => {
         setPokemons((old: any) => [...old, pokemon.name]);
       });
-
-      offset += 10;
     } catch (error) {
       console.log(error);
     } finally {
-      setLoader(false);
     }
   }
 
   useEffect(() => {
     loadPokemon();
-  }, []);
+  }, [offset]);
 
-  function handleScroll(e: any) {
-    if (!loader) {
-      const top = e.target.documentElement.scrollTop;
-      const bottom = e.target.documentElement.scrollHeight;
-      const innerHeight = window.innerHeight;
+  async function handleScroll(e: any) {
+    const top = e.target.documentElement.scrollTop;
+    const bottom = e.target.documentElement.scrollHeight;
+    const innerHeight = window.innerHeight;
 
-      if (top + innerHeight + 1 >= bottom) {
-        loadPokemon();
-      }
+    if (top + innerHeight + 1 >= bottom) {
+      setLoader(true);
+      setOffset((prevOffset) => (prevOffset += 10));
     }
   }
 
